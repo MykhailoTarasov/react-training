@@ -1,16 +1,17 @@
 import React from "react";
 
 import QuizCard from '../QuizCard/QuizCard';
+import { List, ListItem } from "./QuizList.Styled";
 
-const QuizList = ({ items }) => {
+const QuizList = ({ items, onDelete }) => {
   return (
-    <ul>
-      {items.map((item) => (
-        <li key={item.id}>
-          <QuizCard quiz={item}/>
-        </li>
+    <List>
+      {items.map(item => (
+        <ListItem key={item.id}>
+          <QuizCard quiz={item} onDelete={onDelete} />
+        </ListItem>
       ))}
-    </ul>
+    </List>
   );
 };
 
