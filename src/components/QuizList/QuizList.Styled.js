@@ -10,5 +10,6 @@ flex-wrap: wrap;
 `
 
 export const ListItem = styled.li`
+flex-basis: calc((100% - 32px) / 3);
 
 `
