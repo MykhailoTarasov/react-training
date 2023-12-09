@@ -1,6 +1,8 @@
-const SearchBar = ({ filters: {topic, level }, onChangeFilter }) => {
+import { Container } from "./SearchBar.Styled";
+
+const SearchBar = ({ filters: {topic, level }, onChangeFilter, onReset }) => {
   return (
-    <div>
+    <Container>
       <input
         type="text"
         value={topic}
@@ -20,7 +22,8 @@ const SearchBar = ({ filters: {topic, level }, onChangeFilter }) => {
         <option value="intermediate">Intermediate</option>
         <option value="advanced">Advanced</option>
       </select>
-    </div>
+      <button onClick={onReset}>Reset filters</button>
+    </Container>
   );
 };
 
