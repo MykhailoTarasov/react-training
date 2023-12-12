@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import initialQuizItems from './data.json';
-import { nanoid } from 'nanoid';
+import { Audio } from 'react-loader-spinner';
+import { createQuiz, deleteQuizById, fetchQuizzes } from 'api';
+import toast, { Toaster } from 'react-hot-toast';
 
 import QuizList from './QuizList/QuizList';
 import SearchBar from './SearchBar/SearchBar';
@@ -8,19 +9,35 @@ import QuizForm from './QuizForm/QuizForm';
 
 class App extends Component {
   state = {
-    quizItems: initialQuizItems,
+    quizItems: [],
+    loading: false,
+    error: false,
     filters: {
       topic: '',
       level: 'all',
     },
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     const savedFilters = localStorage.getItem('quiz-filters');
     if (savedFilters !== null) {
       this.setState({
         filters: JSON.parse(savedFilters),
       });
+    }
+
+    try {
+      this.setState({ loading: true, error: false });
+      const quizzes = await fetchQuizzes();
+      this.setState({
+        quizItems: quizzes,
+      });
+    } catch (error) {
+      this.setState({
+        error: true,
+      });
+    } finally {
+      this.setState({ loading: false });
     }
   }
 
@@ -30,16 +47,37 @@ class App extends Component {
     }
   }
 
-  addQuiz = newQuiz => {
-    this.setState(prevState => ({
-      quizItems: [...prevState.quizItems, { ...newQuiz, id: nanoid() }],
-    }));
+  addQuiz = async newQuiz => {
+    try {
+      this.setState({ loading: true, error: false });
+      const quiz = await createQuiz(newQuiz);
+
+      this.setState(prevState => ({
+        quizItems: [...prevState.quizItems, quiz],
+      }));
+      toast.success('New quiz added!');
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
+    }
   };
 
-  deleteQuizItem = quizId => {
-    this.setState(prevState => ({
-      quizItems: prevState.quizItems.filter(quiz => quiz.id !== quizId),
-    }));
+  deleteQuizItem = async quizId => {
+    try {
+      this.setState({ loading: true, error: false });
+      const deletedQuiz = await deleteQuizById(quizId);
+      this.setState(prevState => ({
+        quizItems: prevState.quizItems.filter(
+          quiz => quiz.id !== deletedQuiz.id
+        ),
+      }));
+      toast.success('Quiz deleted!');
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
+    }
   };
 
   changeFilter = (key, value) => {
@@ -77,7 +115,7 @@ class App extends Component {
   };
 
   render() {
-    const { filters } = this.state;
+    const { filters, loading, error } = this.state;
     const visibleItems = this.getVisibleItems();
 
     return (
@@ -88,7 +126,22 @@ class App extends Component {
           onChangeFilter={this.changeFilter}
           onReset={this.resetFilters}
         />
-        <QuizList items={visibleItems} onDelete={this.deleteQuizItem} />
+        {loading && (
+          <Audio
+            height="80"
+            width="80"
+            radius="9"
+            color="green"
+            ariaLabel="three-dots-loading"
+            wrapperStyle
+            wrapperClass
+          />
+        )}
+        {error && <p>Woops! Error! Please reload this page!</p>}
+        {visibleItems.length > 0 && (
+          <QuizList items={visibleItems} onDelete={this.deleteQuizItem} />
+        )}
+        <Toaster position="top-right" />
       </div>
     );
   }
