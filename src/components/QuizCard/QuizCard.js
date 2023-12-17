@@ -1,7 +1,7 @@
 import { HiTrash } from 'react-icons/hi';
 import Modal from 'react-modal';
 import { Container, InfoWrapper, Info, ButtonBox } from './QuizCard.Styled';
-import { Component } from 'react';
+import { useState } from 'react';
 
 const customStyles = {
   content: {
@@ -16,50 +16,45 @@ const customStyles = {
 
 Modal.setAppElement('#root');
 
-class QuizCard extends Component {
-  state = {
-    isModalOpen: false,
+const QuizCard = ({
+  quiz: { id, topic, level, time, questions },
+  onDelete,
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
   };
 
-  openModal = () => {
-    this.setState({ isModalOpen: true });
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
-  closeModal = () => {
-    this.setState({ isModalOpen: false });
-  };
+  return (
+    <Container level={level}>
+      <h2>{topic}</h2>
+      <ButtonBox>
+        <button onClick={() => onDelete(id)}>
+          <HiTrash />
+        </button>
+        <button onClick={openModal}>Open modal</button>
+      </ButtonBox>
 
-  render() {
-    const {
-      quiz: { id, topic, level, time, questions },
-      onDelete,
-    } = this.props;
-    return (
-      <Container level={level}>
-        <h2>{topic}</h2>
-        <ButtonBox>
-          <button onClick={() => onDelete(id)}>
-            <HiTrash />
-          </button>
-          <button onClick={this.openModal}>Open modal</button>
-        </ButtonBox>
+      <InfoWrapper>
+        <Info>Level: {level}</Info>
+        <Info>Time: {time} min</Info>
+        <Info>Questions: {questions}</Info>
+      </InfoWrapper>
 
-        <InfoWrapper>
-          <Info>Level: {level}</Info>
-          <Info>Time: {time} min</Info>
-          <Info>Questions: {questions}</Info>
-        </InfoWrapper>
-
-        <Modal
-          isOpen={this.state.isModalOpen}
-          onRequestClose={this.closeModal}
-          style={customStyles}
-        >
-          <p>{topic}</p>
-        </Modal>
-      </Container>
-    );
-  }
-}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+      >
+        <p>{topic}</p>
+      </Modal>
+    </Container>
+  );
+};
 
 export default QuizCard;
