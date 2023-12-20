@@ -2,6 +2,7 @@ import { HiTrash } from 'react-icons/hi';
 import Modal from 'react-modal';
 import { Container, InfoWrapper, Info, ButtonBox } from './QuizCard.Styled';
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const customStyles = {
   content: {
@@ -21,6 +22,7 @@ const QuizCard = ({
   onDelete,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation();
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -32,7 +34,10 @@ const QuizCard = ({
 
   return (
     <Container level={level}>
-      <h2>{topic}</h2>
+      <Link to={`/quizzes/${id}`} state={{ from: location }}>
+        <h2>{topic}</h2>
+      </Link>
+
       <ButtonBox>
         <button onClick={() => onDelete(id)}>
           <HiTrash />
